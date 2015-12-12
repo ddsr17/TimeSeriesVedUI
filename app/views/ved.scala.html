@@ -1,0 +1,394 @@
+@main("Interactive Divisions") {
+
+    <div class="container-fluid">
+        <h2>Interactive Divisions & Buckets Visualization</h2>
+
+        <div class="row">
+            <div class="col-md-8 container">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#slicegraph" data-toggle="tab">Sliced Output Graph</a></li>
+                    <li><a href="#control" data-toggle="tab">Control</a></li>
+                    <li><a href="#graph" data-toggle="tab">Knowledge Graph</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="slicegraph" class="tab-pane active">
+                        <div id="graphdiv" style="width: 100%"></div>
+
+                        <hr>
+                        <h4>Frequency Table</h4>
+                        <div id="mytable">
+                            <table class="table" id="table">
+                                <thead>
+
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="control" class="tab-pane">
+                        <h4>SubString Windows Color</h4>
+                        <div class="colourpicker palette-square colourpicker-focus">
+                            <input type="text">
+                        </div>
+                        <br>
+                        <div class="container col-md-8">
+                        <form role="form">
+                            <div class="form-group">
+                                <label for="vthresh">Value Similarity Threshold</label>
+                                <input type="text" id="vthresh" class="form-control" placeholder="Value Threshold">
+                            </div>
+                            <div class="form-group">
+                                <label for="gthresh">Gradient Similarity Threshold</label>
+                                <input type="text" id="gthresh" class="form-control" placeholder="GradientThreshold">
+                            </div>
+                            <div class="form-group">
+                                <label for="tthresh">Time Similarity Threshold</label>
+                                <input type="text" id="tthresh" class="form-control" placeholder="Time Threshold">
+                            </div>
+                            <button type="submit" class="btn btn-default">Submit</button>
+                        </form>
+                        </div>
+                    </div>
+                    <div id="graph" class="tab-pane">
+                        <div class="container">
+                            <div class="row">
+                                <div class="container">
+                                    <h2>TimeSeries UI</h2>
+                                    <form id = "form1" role="form">
+                                        <div class="form-group">
+
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <form class="form" role="form">
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <div class="col-md-4">
+                                                                <label for="search-input1">Entity Index</label>
+                                                                <input type="text" id="search-input1" class="form-control" name="news" value="">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <button class="btn btn-default" id="btn" type="button">Go</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container" id="content">
+                            <div id="graph2">
+                            </div>
+                        </div>
+
+                        <style type="text/css">
+
+                        .node circle {
+                        cursor: pointer;
+                        stroke: #3182bd;
+                        stroke-width: 2px;
+                        }
+
+                        .node text {
+                        font: 13px sans-serif;
+                        pointer-events: none;
+                        text-anchor: middle;
+                        }
+
+                        line.link {
+                        fill: none;
+                        stroke: #9ecae1;
+                        stroke-width: 1.5px;
+                        }
+
+                        </style>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <form role="form">
+                            <div class="form-group">
+                                <label for="sel1">Input Time Series:</label>
+                                <select class="form-control" id="dropdown">
+                                    <option>TEK16</option>
+                                    <option>h_ref</option>
+                                    <option>h_test</option>
+                                    <option>nprs44</option>
+                                    <option>power_data</option>
+                                    <option>power_short</option>
+                                    <option>qtdbsel102_1</option>
+                                    <option>qtdbsel102_2</option>
+                                    <option>qtdbsele0606_1</option>
+                                    <option>qtdbsele0606_2</option>
+                                    <option>test</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="value">Value Similarity Threshold</label>
+                                <input id="value" class="form-control" type="text" value="0.7">
+                            </div>
+                            <div class="form-group">
+                                <label for="gradient">Gradient Similarity Threshold</label>
+                                <input id="gradient" class="form-control" type="text" value="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="time">Time Similarity Threshold</label>
+                                <input id="time" class="form-control" type="text" value="92">
+                            </div>
+                            <div class="form-group">
+                                <label for="priority">Priority String(v:Value, t:time, gmd:Gradient with Magnitute & Direction,gm:Gradient with Magnitude</label>
+                                <input id="priority" class="form-control" type="text" value="t-v&gmd">
+                            </div>
+                            <button type="button" id="updatebtn" class="btn btn-default">Update</button>
+                            <div class="form-group">
+                                <label for="pattern">Pattern Index</label>
+                                <input id="pattern" class="form-control" type="text">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+
+      g2 = new Dygraph(
+      document.getElementById("graphdiv"),
+       "assets/data/TEK16.csv",
+      {
+      axes:{
+      y:{
+      axisLabelWidth: 40,
+      },
+      x:{
+        xAxisHeight: 10000,
+      }
+      },
+      xValueParser: function(x) { return 1000*parseInt(x); },
+      //labels:["Date","Value"],
+      title:"Sliced Output Graph",
+      });
+
+//      $("#table").DataTable({
+//      data: "/assets/data/fullOutput.csv"
+//      })
+
+
+
+    $("#updatebtn").click(function(){
+    var dropdown = $("#dropdown").val()
+    var valthreshold =  $("#value").val()
+    var gradientthreshold = $("#gradient").val()
+    var timethreshold = $("#time").val()
+    var prioritythreshold = $("#priority").val()
+
+    var d = {"inputtimeseries": dropdown ,"value": valthreshold, "gradient" : gradientthreshold,"time": timethreshold, "priority" : prioritythreshold}
+    $.ajax({
+    type:"POST",
+    url: "/getData",
+    dataType:"json",
+    contentType:"application/json; charset=utf-8",
+    data: JSON.stringify(d),
+    success: function(data){
+    console.log("data is " ,data[1])
+    g = new Dygraph(
+      document.getElementById("graphdiv"),
+       data[0],
+      {
+      axes:{
+      y:{
+      axisLabelWidth: 40,
+      },
+      x:{
+        xAxisHeight: 10000,
+      }
+      },
+      xValueParser: function(x) { return 1000*parseInt(x); },
+      labels:["Date","Value"],
+      title:"Sliced Output Graph",
+      });
+
+      var tabledata = data[1]
+      $("#table").html(" ")
+      $("#table").DataTable({
+        data: tabledata,
+        columns:[
+            {title: "Index"},
+            {title: "Horizontal Range"},
+            {title: "Vertical Range"},
+            {title: "Gradient"},
+            {title: "Height"},
+            {title: "Direction"},
+        ]
+      });
+
+     }
+    })
+    })
+
+  //$("#table").DataTable();
+
+	$("#btn").click(function(){
+	$("#graph2").html(" ");
+		var name = $("#search-input1").val()
+		console.log(name)
+
+		var dsend = {"news" : name }
+
+		$.ajax({
+        type: "POST",
+        url: "/getVertices3",
+        dataType:"json",
+        contentType:"application/json; charset=utf-8",
+        data: JSON.stringify(dsend),
+        success: function(data){
+        console.log(data)
+
+  var width = 1100,
+    height = 1100,
+    root;
+
+var force = d3.layout.force()
+    .linkDistance(80)
+    .charge(-120)
+    .gravity(.05)
+    .size([width, height])
+    .on("tick", tick);
+
+var svg = d3.select("#graph2").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+
+
+    svg.append("defs").selectAll("marker")
+    .data(["suit", "licensing", "resolved"])
+  .enter().append("marker")
+    .attr("id", function(d) { return d; })
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 25)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+  .append("path")
+    .attr("d", "M0,-5L10,0L0,5 L10,0 L0, -5")
+    .style("stroke", "#4679BD")
+    .style("opacity", "0.6");
+
+
+var link = svg.selectAll(".link"),
+    node = svg.selectAll(".node");
+
+  root = data;
+  update();
+
+
+function update() {
+  var nodes = flatten(root),
+      links = d3.layout.tree().links(nodes);
+
+  // Restart the force layout.
+  force
+      .nodes(nodes)
+      .links(links)
+      .start();
+
+  // Update links.
+  link = link.data(links, function(d) { return d.target.id; });
+
+  link.exit().remove();
+
+  link.enter().insert("line", ".node")
+      .attr("class", "link")
+      .style("marker-end",  "url(#suit)");
+
+  // Update nodes.
+  node = node.data(nodes, function(d) { return d.id; });
+
+  node.exit().remove();
+
+  var nodeEnter = node.enter().append("g")
+      .attr("class", "node")
+      .on("click", click)
+      .call(force.drag);
+
+  nodeEnter.append("circle")
+      .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; });
+
+  // nodeEnter.append("title")
+  //     .text(function(d) {
+  //     	var tooltip = "start_ts:" + d.start_ts + "\n" + "vertical_upon_horizontal:" + d.vertical_upon_horizontal + "\n" +"minimum_value:" + d.minimum_value + "\n" + "gradient:" + d.gradient + "\n" + "start_value:" + d.start_value + "\n" +"horizontal_range:" + d.horizontal_range + "\n" + "end_value:" + d.end_value + "\n" + "end_ts:" + d.end_ts
+
+  //     	return tooltip; });
+
+  nodeEnter.append("text")
+      .attr("dy", "-.55em")
+      .attr("dx", "-.75em")
+      .text(function(d) { return d.name });
+
+  node.select("circle")
+      .style("fill", color);
+}
+
+function tick() {
+  link.attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+
+  node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+}
+
+function color(d) {
+  return d._children ? "#3182bd" // collapsed package
+      : d.children ? "#c6dbef" // expanded package
+      : "#fd8d3c"; // leaf node
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d3.event.defaultPrevented) return; // ignore drag
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+  update();
+}
+
+// Returns a list of all nodes under the root.
+function flatten(root) {
+  var nodes = [], i = 0;
+
+  function recurse(node) {
+    if (node.children) node.children.forEach(recurse);
+    if (!node.id) node.id = ++i;
+    nodes.push(node);
+  }
+
+  recurse(root);
+  return nodes;
+}
+}
+})
+})
+
+</script>
+}
