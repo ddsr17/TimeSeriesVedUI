@@ -102,4 +102,38 @@ class Application extends Controller {
     })
 
     })
+
+  def addFeature = Action.async(BodyParsers.parse.json)(implicit request => {
+
+    val feature = (request.body \ "feature" ).get.toString().replaceAll("^\"|\"$", "")
+    val valuefeature = (request.body \ "value").get.toString().replaceAll("^\"|\"$", "")
+
+    val future = WS.url(url + "Rest_API_Jersey/sigmoid/addfeature/"+ feature +"," + valuefeature).get().map(response => {
+      println("body is " + response.body)
+      response.body
+    })
+
+    future.map(r => {Ok(r.toString)})
+  })
+
+  def createGraph = Action {
+    val future = WS.url(url + "Rest_API_Jersey/sigmoid/creategraph").get().map(response => {
+      response.body
+    })
+
+    Ok("")
+  }
+
+  def getNeighbourGraph = Action.async(BodyParsers.parse.json)(implicit request => {
+
+    val featurename = (request.body \ "featurename").get.toString().replaceAll("^\"|\"$", "");
+
+    val future = WS.url(url + "Rest_API_Jersey/sigmoid/featurechildren/" + featurename).get().map(response => {
+      println("body is " + response.body)
+      response.body
+    })
+
+    future.map(temp => {Ok(temp.toString)})
+  })
+
 }
