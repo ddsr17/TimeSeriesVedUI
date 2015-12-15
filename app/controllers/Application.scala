@@ -68,7 +68,6 @@ class Application extends Controller {
   def getIntialData = Action.async(BodyParsers.parse.json)(implicit request => {
 
     val t = (request.body \ "input").get.toString().replaceAll("^\"|\"$", "")
-    println(t)
     val future = WS.url(url + "Rest_API_Jersey/sigmoid/data/" + t + ".csv").get().map(response => {
       response.body
     })
@@ -88,11 +87,6 @@ class Application extends Controller {
     val time = (gotdata \ "time").get.toString().replaceAll("^\"|\"$", "")
     val priority = (gotdata \ "priority").get.toString().replaceAll("^\"|\"$", "")
 
-    println("dropdown is " + dropdown)
-    println("value is " + value)
-    println("gradient is " + gradient)
-    println("time is " + time)
-    println("priority is " + priority)
     val future = WS.url(url + "Rest_API_Jersey/sigmoid/patterntable/"+ dropdown + ".csv," + value + "," + gradient + "," + time + "," + priority).get().map(response => {
       response.body
     })
@@ -109,7 +103,7 @@ class Application extends Controller {
     val valuefeature = (request.body \ "value").get.toString().replaceAll("^\"|\"$", "")
 
     val future = WS.url(url + "Rest_API_Jersey/sigmoid/addfeature/"+ feature +"," + valuefeature).get().map(response => {
-      println("body is " + response.body)
+      //println("body is " + response.body)
       response.body
     })
 
@@ -129,7 +123,7 @@ class Application extends Controller {
     val featurename = (request.body \ "featurename").get.toString().replaceAll("^\"|\"$", "");
 
     val future = WS.url(url + "Rest_API_Jersey/sigmoid/featurechildren/" + featurename).get().map(response => {
-      println("body is " + response.body)
+      //println("body is " + response.body)
       response.body
     })
 

@@ -135,7 +135,7 @@
                                                 <option>All Features</option>
                                             </select>
                                             </div>
-                                            <button id="neighbour" type="submit" class="btn btn-default">Get Neighbours Graph</button>
+                                            <button id="neighbour" type="button" class="btn btn-default">Get Neighbours Graph</button>
                                         </form>
                                     </div>
 
@@ -490,10 +490,138 @@ $("#featurebtn").click(function(){
         contentType:"application/json; charset=utf-8",
         data: JSON.stringify(data),
         success: function(d){
-            alert("hello")
-            console.log("new graph json is ",d)
+            $("#graph2").html(" ");
+
+    var width = 1100,
+    height = 1100,
+    root;
+
+    var force = d3.layout.force()
+        .linkDistance(80)
+        .charge(-120)
+        .gravity(.05)
+        .size([width, height])
+        .on("tick", tick);
+
+    var svg = d3.select("#graph2").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+
+
+    svg.append("defs").selectAll("marker")
+    .data(["suit", "licensing", "resolved"])
+    .enter().append("marker")
+        .attr("id", function(d) { return d; })
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 25)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+    .append("path")
+        .attr("d", "M0,-5L10,0L0,5 L10,0 L0, -5")
+        .style("stroke", "#4679BD")
+        .style("opacity", "0.6");
+
+
+    var link = svg.selectAll(".link"),
+        node = svg.selectAll(".node");
+
+    root = d;
+     update();
+
+
+    function update() {
+      var nodes = flatten(root),
+          links = d3.layout.tree().links(nodes);
+
+      // Restart the force layout.
+      force
+          .nodes(nodes)
+          .links(links)
+          .start();
+
+      // Update links.
+      link = link.data(links, function(d) { return d.target.id; });
+
+      link.exit().remove();
+
+      link.enter().insert("line", ".node")
+          .attr("class", "link")
+          .style("marker-end",  "url(#suit)");
+
+      // Update nodes.
+      node = node.data(nodes, function(d) { return d.id; });
+
+      node.exit().remove();
+
+      var nodeEnter = node.enter().append("g")
+          .attr("class", "node")
+          .on("click", click)
+          .call(force.drag);
+
+      nodeEnter.append("circle")
+          .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; });
+
+      // nodeEnter.append("title")
+      //     .text(function(d) {
+      //     	var tooltip = "start_ts:" + d.start_ts + "\n" + "vertical_upon_horizontal:" + d.vertical_upon_horizontal + "\n" +"minimum_value:" + d.minimum_value + "\n" + "gradient:" + d.gradient + "\n" + "start_value:" + d.start_value + "\n" +"horizontal_range:" + d.horizontal_range + "\n" + "end_value:" + d.end_value + "\n" + "end_ts:" + d.end_ts
+
+      //     	return tooltip; });
+
+      nodeEnter.append("text")
+          .attr("dy", "-.55em")
+          .attr("dx", "-.75em")
+          .text(function(d) { return d.name });
+
+      node.select("circle")
+          .style("fill", color);
+    }
+
+    function tick() {
+      link.attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+
+      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    }
+
+    function color(d) {
+      return d._children ? "#3182bd" // collapsed package
+          : d.children ? "#c6dbef" // expanded package
+          : "#fd8d3c"; // leaf node
+    }
+
+    // Toggle children on click.
+    function click(d) {
+      if (d3.event.defaultPrevented) return; // ignore drag
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+      update();
+    }
+
+    // Returns a list of all nodes under the root.
+    function flatten(root) {
+      var nodes = [], i = 0;
+
+      function recurse(node) {
+        if (node.children) node.children.forEach(recurse);
+        if (!node.id) node.id = ++i;
+        nodes.push(node);
+      }
+
+      recurse(root);
+      return nodes;
         }
-        })
+    }
+    })
     })
 
 </script>
