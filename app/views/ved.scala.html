@@ -9,18 +9,15 @@
                     <li><a href="#graph" data-toggle="tab">Knowledge Graph</a></li>
                 </ul>
             <div class="tab-content">
-            @*<div class="row">*@
-                @*<div class="col-md-8 container">*@
                     <div id="slicegraph" class="tab-pane active">
                         <div class="row">
                             <div class="col-md-8">
                         <div id="graphdiv" style="width: 100%"></div>
                                 <hr>
-                                <div id="mytable">
-                                    <h4>Frequency Table</h4>
-                                    <table class="table" id="table">
+                                <div class="col-md-12" id="mytable">
+                                    <table class="table" style="width:100%" id="table">
                                         <thead>
-
+                                         <h4>Frequency Table</h4>
                                         </thead>
                                         <tbody>
 
@@ -106,72 +103,68 @@
                             <div class="container">
                                 <button type="button" id="creategraph" class="btn btn-default">Create Fresh Graph</button>
                             </div>
+                            <br>
                             <div class="container">
                                 <h4>Graph Search</h4>
 
                                         <div class="col-md-4">
                                             <form class="form-inline" role="form">
                                                 <div class="form-group">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
                                                             <label for="search-input1">Entity Index</label>
                                                             <input type="text" id="search-input1" class="form-control" name="news" value="">
-                                                        </div>
-                                                    </div>
                                                 </div>
-
-                                                <div class="form-group">
-                                                    <div class="row">
                                                         <button class="btn btn-default" id="btn" type="button">Go</button>
-                                                    </div>
-                                                </div>
                                             </form>
                                         </div>
 
-                                        <form role="form">
-                                        <div id="listoffeature" class="form-group col-md-6">
+                                        <div class="col-md-4">
+                                            <form role="form">
+                                            <div class="form-group">
+                                                <label for="addfeature">Add New Feature:</label>
+                                                <select class="form-control" id="addfeature">
+                                                    <option>Select Feature</option>
+                                                    <option>horizontal_range</option>
+                                                    <option>vertical_range</option>
+                                                    <option>gradient</option>
+                                                    <option>vertical_upon_horizontal</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="featurevalue">Number: </label>
+                                                <input id="featurevalue" class="form-control" type="text">
+                                            </div>
+                                                    <button class="btn btn-default" id="featurebtn" type="button">Submit</button>
+                                            </form>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                        <form role="form-inline">
+                                        <div id="listoffeature" class="form-group">
                                             <label for="featurelist">List of Features</label>
                                             <select class="form-control" id="featurelist">
                                                 <option>All Features</option>
                                             </select>
-                                            </div>
+                                        </div>
                                             <button id="neighbour" type="button" class="btn btn-default">Get Neighbours Graph</button>
                                         </form>
+                                        </div>
+                            </div>
+
+                                    <div class="container" id="content">
+                                        <div id="graph2">
+                                        </div>
                                     </div>
-
-                    <div class="container col-md-4">
-                    <div class="form-group">
-                    <label for="addfeature">Add New Feature:</label>
-                    <select class="form-control" id="addfeature">
-                        <option>Select Feature</option>
-                        <option>horizontal_range</option>
-                        <option>vertical_range</option>
-                        <option>gradient</option>
-                        <option>vertical_upon_horizontal</option>
-                    </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="featurevalue">Number: </label>
-                        <input id="featurevalue" class="form-control" type="text">
-                    </div>
-                    <div class="form-group">
-                        <div class="row">
-                            <button class="btn btn-default" id="featurebtn" type="button">Submit</button>
-                        </div>
-                    </div>
-                    </div>
-
-                    <div class="container" id="content">
-                        <div id="graph2">
-                        </div>
-                    </div>
                     </div>
                 </div>
             </div>
 
 
                         <style type="text/css">
+
+                        #creategraph{
+                            color: green;
+                        }
 
                         .node circle {
                         cursor: pointer;
@@ -212,11 +205,6 @@
       //labels:["Date","Value"],
       title:"Sliced Output Graph",
       });
-
-//      $("#table").DataTable({
-//      data: "/assets/data/fullOutput.csv"
-//      })
-
 
 
     $("#updatebtn").click(function(){
@@ -268,13 +256,12 @@
                 highlight_period(data[1][i][2],data[1][i][3])
             }
           },
-          //showRangeSelector: true,
       });
 
       var tabledata = data[1]
       console.log(data[1])
 
-      $("#table").DataTable({
+      var table = $("#table").DataTable({
         data: tabledata,
         columns:[
             {title: "Index"},
@@ -286,10 +273,16 @@
             {title: "Start_Value"},
             {title: "End_Value"},
             {title: "Direction"},
-            {title: "Height"},
+            {title: "HeightUponWidth"},
         ],
          destroy: true,
       });
+
+      table.column(2).visible(false)
+      table.column(3).visible(false)
+      table.column(6).visible(false)
+      table.column(7).visible(false)
+
      }
     })
     })
